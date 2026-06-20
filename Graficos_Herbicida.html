@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA INTEGRADO USA - DASHBOARD</title>
+    <!-- Fontes Premium do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Bibliotecas Externas (CDNs) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        :root {
+            /* Paleta de Cores e Identidade Visual */
+            --usa-verde-escuro: #004A2F;
+            --usa-verde-medio: #2D7A4C;
+            --usa-verde-claro: #B2D969;
+            --usa-laranja: #ff9800;
+            --usa-laranja-gradient: linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+            --usa-verde-gradient: linear-gradient(135deg, var(--usa-verde-escuro) 0%, #00633f 100%);
+            --bg-abas: #ffffff;
+            --bg-body: #f4f6f8;
+            
+            /* Tipografia e Textos */
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --text-light: #f8fafc;
+            
+            /* Layout & Efeitos */
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+        }
+
+        body { 
+            font-family: var(--font-body); 
+            margin: 0; 
+            background: var(--bg-body); 
+            color: var(--text-dark);
+            padding-top: 125px; 
+            padding-bottom: 80px; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Barra Superior de Navegação por Abas */
+        .nav-tabs {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            background: var(--bg-abas);
+            display: flex; 
+            align-items: center; 
+            padding: 0 15px; 
+            height: 55px;
+            z-index: 1001; 
+            border-bottom: 2px solid #e2e8f0;
+            gap: 8px; 
+            overflow-x: auto; 
+            white-space: nowrap;
+            box-sizing: border-box;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-item {
+            text-decoration: none; 
+            color: var(--text-muted); 
+            padding: 8px 16px; 
+            font-size: 11px;
+            font-weight: 700; 
+            border-radius: 20px; 
+            display: flex;
+            align-items: center; 
+            gap: 6px; 
+            transition: var(--transition); 
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-item:hover { 
+            background: #f1f5f9; 
+            color: var(--usa-verde-escuro);
+        }
+
+        .tab-item.active {
+            background: rgba(0, 74, 47, 0.08); 
+            border-color: rgba(0, 74, 47, 0.15); 
+            color: var(--usa-verde-escuro);
+        }
+
+        /* Cabeçalho Principal (Header) */
+        .header-dash {
+            background: var(--usa-verde-gradient);
+            color: white; 
+            padding: 0 20px; 
+            display: flex; 
+            justify-content: space-between;
+            align-items: center; 
+            position: fixed; 
+            top: 55px; 
+            width: 100%; 
+            z-index: 1000;
+            height: 55px; 
+            box-shadow: 0 4px 20px rgba(0, 74, 47, 0.15); 
+            box-sizing: border-box;
+        }
+
+        .header-dash b {
+            font-family: var(--font-display);
+            letter-spacing: -0.5px;
+        }
+
+        /* Botões de Ação no Header */
+        .btn-nav { 
+            text-decoration: none; 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.25); 
+            padding: 8px 12px; 
+            border-radius: 30px; 
+            font-size: 11px; 
+            font-weight: 700;
+            background: rgba(255,255,255,0.1); 
+            cursor: pointer; 
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-nav:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-1px);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        /* Container Principal - Mantendo a proporção de 98% original do sistema */
+        .container { 
+            width: 98%; 
+            margin: 0 auto; 
+        }
+
+        /* Divisórias de Seção */
+        .secao-titulo {
+            background: var(--usa-verde-escuro); 
+            color: white; 
+            padding: 10px 16px;
+            border-radius: var(--border-radius-md); 
+            font-family: var(--font-display);
+            font-weight: 800; 
+            font-size: 13px; 
+            margin: 20px 0 10px 0;
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            box-shadow: var(--shadow-sm);
+            letter-spacing: 0.5px;
+        }
+
+        /* Sub-Header com Filtro de Processo */
+        .sub-header-info {
+            background: #fff; 
+            padding: 12px 20px; 
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 15px; 
+            border: 1px solid #e2e8f0; 
+            border-left: 8px solid var(--usa-verde-claro);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Seletor Customizado de Processo */
+        .select-processo {
+            font-family: var(--font-display);
+            font-size: 18px; 
+            font-weight: 900; 
+            color: var(--usa-verde-escuro);
+            border: 2px solid var(--usa-verde-medio); 
+            border-radius: var(--border-radius-md);
+            padding: 6px 36px 6px 16px; 
+            cursor: pointer; 
+            outline: none; 
+            background: #fff; 
+            text-transform: uppercase;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23004A2F' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 14px;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .select-processo:hover {
+            border-color: var(--usa-verde-escuro);
+            box-shadow: 0 4px 12px rgba(0, 74, 47, 0.1);
+        }
+
+        /* Legenda Customizada */
+        .legenda-container {
+            background: white; 
+            margin: 5px 0 15px 0; 
+            padding: 12px 20px; 
+            border-radius: var(--border-radius-lg);
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 12px; 
+            justify-content: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #eef2f5;
+        }
+
+        .legenda-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-size: 10px; 
+            font-weight: 800; 
+            color: var(--text-dark); 
+            padding: 5px 12px;
+            background: #f8fafc;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            text-transform: uppercase;
+        }
+
+        .legenda-cor { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            border: 1px solid rgba(0,0,0,0.1); 
+        }
+
+        /* Grid de Gráficos de Frota - Gap original de 15px */
+        .grid-charts { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+        }
+
+        /* Cartões de Gráficos */
+        .card-chart { 
+            background: white; 
+            padding: 16px 20px 20px 20px; 
+            border-radius: var(--border-radius-lg); 
+            box-shadow: var(--shadow-md); 
+            border: 1px solid #eef2f5; 
+            transition: var(--transition);
+        }
+
+        /* Botão Toggle de Meta no Gráfico */
+        .btn-meta-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+            margin-top: 4px;
+        }
+
+        .btn-meta-toggle:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: #fef2f2;
+            transform: scale(1.03);
+        }
+
+        .btn-meta-toggle.active {
+            border-color: #ef4444;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-meta-toggle .meta-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            transition: var(--transition);
+        }
+
+        .btn-meta-toggle.active .meta-dot {
+            background: white;
+            box-shadow: 0 0 4px rgba(255,255,255,0.6);
+        }
+
+        .card-chart:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Grid da Área de Resumo Detalhado */
+        .area-resumo { 
+            display: grid; 
+            grid-template-columns: 380px 1fr; 
+            gap: 15px; 
+        }
+
+        /* Grid de Mini Cartões */
+        .cards-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+        }
+
+        /* Mini Cartão de Resumos */
+        .card-mini { 
+            background: white; 
+            padding: 12px 14px; 
+            border-radius: var(--border-radius-md); 
+            text-align: center; 
+            border: 1px solid #eef2f5;
+            border-bottom: 4px solid var(--usa-verde-medio); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; 
+            min-height: 90px; 
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            box-sizing: border-box;
+        }
+
+        .card-mini:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-mini h4 { 
+            margin: 0 0 8px 0; 
+            font-size: 11px; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            border-bottom: 1px solid #f1f5f9; 
+            padding-bottom: 6px; 
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .card-mini .valor { 
+            font-size: 19px; 
+            font-weight: 900; 
+            color: var(--usa-verde-escuro); 
+            line-height: 1.1; 
+        }
+
+        /* Container de Tabela Modernizada */
+        .tabela-box { 
+            background: white; 
+            border-radius: var(--border-radius-lg); 
+            overflow: hidden; 
+            box-shadow: var(--shadow-md); 
+            border: 1px solid #eef2f5;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 10.5px; 
+        }
+
+        th { 
+            background: #f8fafc; 
+            padding: 10px 12px; 
+            text-align: left; 
+            border-bottom: 2px solid #e2e8f0; 
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td { 
+            padding: 8px 12px; 
+            border-bottom: 1px solid #f1f5f9; 
+            color: #334155;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Estilo para Treminhão/Pentaminhão */
+        .linha-especial { 
+            background-color: #f0fdf4; 
+            border-left: 4px solid var(--usa-verde-medio); 
+        }
+
+        .linha-especial td b {
+            color: var(--usa-verde-escuro);
+        }
+
+        /* Timeline Operacional de 24h */
+        .timeline { 
+            display: flex; 
+            height: 20px; 
+            border-radius: 6px; 
+            overflow: hidden; 
+            border: 1px solid #e2e8f0; 
+            margin-top: 14px; 
+            background: #f1f5f9;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .fatia { 
+            flex: 1; 
+            height: 100%; 
+            border-right: 1px solid rgba(0, 0, 0, 0.05); 
+            transition: var(--transition);
+        }
+
+        .fatia:last-child {
+            border-right: none;
+        }
+
+        .fatia:hover {
+            filter: brightness(0.9);
+            cursor: pointer;
+        }
+
+        /* Rótulos da Timeline */
+        .labels-hora { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 6px; 
+        }
+
+        .labels-hora span { 
+            flex: 1; 
+            text-align: center; 
+            font-size: 8px; 
+            color: var(--text-muted); 
+            font-weight: 800; 
+        }
+
+        /* Box de Observações e Eventos */
+        .box-obs { 
+            margin-top: 14px; 
+            padding: 12px 14px; 
+            background: #fffbeb; 
+            border-radius: var(--border-radius-md); 
+            border-left: 4px solid var(--usa-laranja); 
+            font-size: 10px; 
+            color: #451a03; 
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.04);
+        }
+
+        .obs-item { 
+            margin-bottom: 6px; 
+            border-bottom: 1px dashed rgba(245, 158, 11, 0.2); 
+            padding-bottom: 6px; 
+        }
+
+        .obs-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        /* Rodapé de Filtro e Ajustes */
+        .footer-filter { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            width: 100%; 
+            background: rgba(255, 255, 255, 0.95); 
+            border-top: 1px solid #e2e8f0; 
+            padding: 8px 16px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            backdrop-filter: blur(8px); 
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.03);
+            box-sizing: border-box;
+        }
+
+        .input-data-compacto { 
+            padding: 6px 14px; 
+            border-radius: 8px; 
+            border: 2px solid var(--usa-verde-medio); 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--usa-verde-escuro); 
+            outline: none; 
+            width: 140px; 
+            text-align: center; 
+            cursor: pointer;
+            transition: var(--transition);
+            background: #fff;
+        }
+
+        .input-data-compacto:hover {
+            border-color: var(--usa-verde-escuro);
+            box-shadow: 0 4px 12px rgba(0, 74, 47, 0.1);
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 992px) {
+            body {
+                padding-top: 135px;
+            }
+            .header-dash {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 15px;
+                gap: 8px;
+                text-align: center;
+            }
+            .header-dash span {
+                margin-top: 4px;
+            }
+            .area-resumo {
+                grid-template-columns: 1fr;
+            }
+            .grid-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="header-dash">
+    <div style="display:flex; gap:8px;">
+        <a href="Painel.html" class="btn-nav">❮ VOLTAR</a>
+        <button onclick="copiarRelatorio()" id="btnZap" class="btn-nav" style="background: #10b981; border: none;">📸 COPIAR PRINT</button>
+    </div>
+    <b style="font-size: 16px;">MONITORAMENTO OPERACIONAL - USA</b>
+    <span id="data-txt" style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 14px; border-radius: 15px; font-weight: bold; letter-spacing: 0.5px;"></span>
+</header>
+
+<nav class="nav-tabs">
+    <a href="Gestor de Cores.html" class="tab-item">🎨 GESTOR DE CORES</a>
+    <a href="Cadastros.html" class="tab-item">⚙️ CADASTROS</a>
+    <a href="Localizacao_Frota.html" class="tab-item">🚜 LOCALIZAÇÃO FROTA</a>
+    <a href="Monitoramento_Chuva.html" class="tab-item">☔ CHUVA</a>
+    <a href="Resumo_PPT.html" class="tab-item">📈 RESUMO PPT</a>
+    <a href="#" class="tab-item active">📊 GRÁFICOS</a>
+    <a href="Pasta_viva.html" class="tab-item">📂 PASTA VIVA</a>
+    <a href="Banco_dados_PPT.html" class="tab-item">🗄️ BANCO DE DADOS</a>    
+</nav>
+
+<main class="container" id="area-print">
+    <div class="sub-header-info">
+        <span style="font-size: 15px; font-weight: 800; color: var(--usa-verde-escuro); font-family: var(--font-display);">⚙️ PROCESSO SELECIONADO:</span>
+        <select id="select-proc" class="select-processo" onchange="salvarEAtualizar()">
+            <option value="PLANTIO LINHA MÃE">🌱 PLANTIO LINHA MÃE</option>
+            <option value="IRRIGAÇÃO LINHA MÃE">💧 IRRIGAÇÃO LINHA MÃE</option>
+            <option value="PREPARO DE SOLO">🚜 PREPARO DE SOLO</option>
+            <option value="DESENLEIRADOR">🧪 DESENLEIRADOR</option>
+            <option value="HERBICIDA">🌿 HERBICIDA</option>
+            <option value="VINHAÇA ASPERSÃO">💧 VINHAÇA ASPERSÃO</option>
+            <option value="VINHAÇA LOCALIZADA">📍 VINHAÇA LOCALIZADA</option>       
+            <option value="Solix">🤖 SOLIX</option>
+            <option value="PLANTIO DESDOBRA">🌱 PLANTIO DESDOBRA</option>
+            <option value="PLANTIO MECANIZADO">🌱🚜 PLANTIO MECANIZADO</option>
+        </select>
+    </div>
+
+    <div class="secao-titulo">📊 RESUMO DETALHADO POR OPERAÇÃO</div>
+    <div class="area-resumo">
+        <div class="cards-grid">
+            <div class="card-mini" id="v_total">
+                <h4>TOTAL GERAL</h4>
+                <div class="valor">0.0</div>
+            </div>
+            <div class="card-mini" id="v_proj" style="align-items:flex-start; text-align:left; overflow-y:auto; max-height:150px;">
+                <h4>PROJEÇÃO 24H POR OP.</h4>
+            </div>
+            <div class="card-mini">
+                <h4>REND/HORA</h4>
+                <div id="v_media_h" class="valor">0.0</div>
+            </div>
+            <div class="card-mini">
+                <h4>REND/EQUIP</h4>
+                <div id="v_media_eq" class="valor">0.0</div>
+            </div>
+        </div>
+        <div class="tabela-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>FROTA</th>
+                        <th>FAZENDA</th>
+                        <th>OPERAÇÃO</th>
+                        <th>TOTAL</th>
+                        <th>REND.</th>
+                    </tr>
+                </thead>
+                <tbody id="corpo_tab"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="secao-titulo" style="justify-content:space-between;">
+        <span>🚜 DESEMPENHO INDIVIDUALIZADO (FROTA)</span>
+        <button class="btn-meta-toggle active" id="btn-meta-global" onclick="toggleMetaGlobal()" title="Ativar/desativar meta em todos os gráficos" style="font-size:10px; padding:5px 14px;">
+            <span class="meta-dot"></span>🎯 META GERAL
+        </button>
+    </div>
+    <div id="legenda_dinamica" class="legenda-container"></div>
+    <div class="grid-charts" id="grid_eq"></div>
+</main>
+
+<footer class="footer-filter">
+    <span style="font-size: 11px; font-weight: bold; color: var(--text-muted); margin-right: 12px; font-family: var(--font-display);">FILTRAR DATA:</span>
+    <input type="date" id="filtro-data" class="input-data-compacto" onchange="salvarEAtualizar()">
+</footer>
+
+<script>
+    Chart.register(ChartDataLabels);
+    const STORAGE_KEY = 'usa_v18_final';
+    const CONFIG_KEY = 'usa_last_ui_config';
+    const COLOR_KEY = 'usa_v18_colors';
+    const CADASTRO_KEY = 'usa_v18_config';
+    
+    // Turno operacional inicia às 05:00 e termina às 04:00 do dia subsequente (formando 24 horas)
+    const horasArr = ["05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","00","01","02","03","04"];
+    let chartInstances = {};
+    let metaVisivel = true; // Estado global de visibilidade da meta nos gráficos
+
+    window.onload = () => {
+        try {
+            const ultimaConfig = JSON.parse(localStorage.getItem(CONFIG_KEY));
+            if (ultimaConfig && ultimaConfig.data && ultimaConfig.processo) {
+                document.getElementById('filtro-data').value = ultimaConfig.data;
+                document.getElementById('select-proc').value = ultimaConfig.processo;
+            } else {
+                const hoje = new Date();
+                const offset = hoje.getTimezoneOffset();
+                const hojeLocal = new Date(hoje.getTime() - (offset * 60 * 1000));
+                document.getElementById('filtro-data').value = hojeLocal.toISOString().split('T')[0];
+            }
+        } catch (e) {
+            console.error("Erro ao carregar configurações iniciais:", e);
+            const hoje = new Date();
+            document.getElementById('filtro-data').value = hoje.toISOString().split('T')[0];
+        }
+        carregarDados();
+    };
+
+    function obterCor(motivo) {
+        try {
+            const coresCustom = JSON.parse(localStorage.getItem(COLOR_KEY)) || {};
+            const motivoNormalizado = motivo.toUpperCase().trim();
+            if (coresCustom[motivoNormalizado]) return coresCustom[motivoNormalizado];
+            if (motivoNormalizado === "PRODUTIVO") return "#2D7A4C";
+            
+            // Gerador de cor determinística baseada em string (hash) se não houver cor pré-definida
+            let hash = 0;
+            for (let i = 0; i < motivoNormalizado.length; i++) {
+                hash = motivoNormalizado.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = Math.abs(hash) % 360;
+            return `hsl(${h}, 70%, 45%)`;
+        } catch (e) {
+            return "#64748b";
+        }
+    }
+
+    function salvarEAtualizar() {
+        const config = {
+            data: document.getElementById('filtro-data').value,
+            processo: document.getElementById('select-proc').value
+        };
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+        carregarDados();
+    }
+
+    function obterDataLocalDdMmAaaa(dataObj) {
+        const d = String(dataObj.getDate()).padStart(2, '0');
+        const m = String(dataObj.getMonth() + 1).padStart(2, '0');
+        const a = dataObj.getFullYear();
+        return `${d}/${m}/${a}`;
+    }
+
+    function limparHorasEFormatar(dataStrIso) {
+        const d = new Date(dataStrIso + "T12:00:00");
+        return obterDataLocalDdMmAaaa(d);
+    }
+
+    function carregarDados() {
+        const dataInput = document.getElementById('filtro-data').value;
+        const processoSelecionado = document.getElementById('select-proc').value;
+        
+        let db = [];
+        try {
+            db = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        } catch (e) {
+            console.error("Erro ao carregar dados do LocalStorage:", e);
+        }
+        
+        const dataBase = limparHorasEFormatar(dataInput);
+        const dSegObj = new Date(dataInput + "T12:00:00");
+        dSegObj.setDate(dSegObj.getDate() + 1);
+        const dataApos = obterDataLocalDdMmAaaa(dSegObj);
+        
+        document.getElementById('data-txt').innerText = dataBase;
+
+        // Filtragem dos dados de acordo com o Processo e o Turno de 24h
+        const dadosFiltrados = db.filter(i => {
+            if (!i.proc || !i.data || !i.hora) return false;
+            if (i.proc.toLowerCase() !== processoSelecionado.toLowerCase()) return false;
+            const h = parseInt(i.hora, 10);
+            if (isNaN(h)) return false;
+            
+            const correspondeHoje = (i.data === dataBase && h >= 5);
+            const correspondeAmanha = (i.data === dataApos && h >= 0 && h <= 4);
+            return correspondeHoje || correspondeAmanha;
+        });
+
+        const tabelaRows = {};
+        const frotaCards = {};
+        const motivosNoDia = new Map();
+        const qtdPorOperacao = {}; 
+        let tGeral = 0, hP_Geral = 0;
+
+        dadosFiltrados.forEach(i => {
+            const v = parseFloat(i.qtd || 0); 
+            tGeral += v;
+            if (i.status === "PRODUTIVO") hP_Geral++;
+            
+            const faz = i.fazenda || i.faz || "N/A";
+            const oper = (i.oper || "N/A").toUpperCase();
+            let frota = (i.eq || "").toUpperCase();
+            if (frota === "TREMINHÃO II") frota = "TRETAMINHÃO";
+
+            if (v > 0 && oper !== "PARADO" && oper !== "OPERAÇÃO PARADA") {
+                if (!qtdPorOperacao[oper]) qtdPorOperacao[oper] = 0;
+                qtdPorOperacao[oper] += v;
+            }
+
+            const chaveTabela = `${frota}_${faz}_${oper}`;
+            if (!tabelaRows[chaveTabela]) {
+                tabelaRows[chaveTabela] = { frota, faz, oper, total: 0, hP: 0 };
+            }
+            tabelaRows[chaveTabela].total += v;
+            if (i.status === "PRODUTIVO") tabelaRows[chaveTabela].hP++;
+
+            if (!frotaCards[frota]) {
+                frotaCards[frota] = { 
+                    id: frota, 
+                    fazendas: new Set(), 
+                    listaOps: new Set(), 
+                    total: 0, 
+                    hP: 0, 
+                    ph: {}, 
+                    sh: {}, 
+                    op: {}, 
+                    obs: [], 
+                    ultimaFaz: "N/A" 
+                };
+                horasArr.forEach(h => { 
+                    frotaCards[frota].ph[h] = 0; 
+                    frotaCards[frota].sh[h] = "#f1f5f9"; 
+                    frotaCards[frota].op[h] = null;
+                });
+            }
+            if (faz !== "N/A" && faz.trim() !== "") frotaCards[frota].ultimaFaz = faz;
+            frotaCards[frota].total += v;
+            
+            if (i.status === "PRODUTIVO") {
+                frotaCards[frota].hP++;
+                frotaCards[frota].fazendas.add(faz);
+                if (oper !== "PARADO" && oper !== "OPERAÇÃO PARADA") {
+                    frotaCards[frota].listaOps.add(oper);
+                }
+            }
+            
+            const horaChave = i.hora.padStart(2, '0');
+            if (frotaCards[frota].ph.hasOwnProperty(horaChave)) {
+                frotaCards[frota].ph[horaChave] += v;
+                frotaCards[frota].op[horaChave] = oper;
+            }
+
+            if (i.obs && i.obs.trim() !== "") {
+                frotaCards[frota].obs.push({ hora: i.hora, texto: i.obs });
+            }
+
+            let motOriginal = (i.motivo || "").toUpperCase().trim();
+            let key = (i.status === "PRODUTIVO") ? "PRODUTIVO" : (motOriginal !== "" ? motOriginal : "SEM INFORMAÇÃO");
+            let corFinal = obterCor(key);
+            motivosNoDia.set(key, corFinal);
+            
+            if (frotaCards[frota].sh.hasOwnProperty(horaChave)) {
+                frotaCards[frota].sh[horaChave] = corFinal;
+            }
+        });
+
+        const horasReportadasUnicas = new Set();
+        dadosFiltrados.forEach(i => {
+            if (i.hora) horasReportadasUnicas.add(i.hora);
+        });
+        const horasTurnoDecorridas = horasReportadasUnicas.size > 0 ? horasReportadasUnicas.size : 1;
+        const totalHorasMaquinaProdutivas = hP_Geral > 0 ? hP_Geral : 1;
+        
+        // Calcula Meta Acumulada Geral somando de todos os equipamentos
+        let metaAcumuladaGeral = 0;
+        Object.keys(frotaCards).forEach(id => {
+            const f = frotaCards[id];
+            horasArr.forEach(h => {
+                if (f.sh && f.sh[h] !== '#f1f5f9' && f.op && f.op[h]) {
+                    let m = buscarMetaPorOperacao(id, f.op[h]);
+                    if (m) metaAcumuladaGeral += m;
+                }
+            });
+        });
+        
+        // Novo Cálculo de Projeção (Distribuído por Máquina nas Horas Restantes)
+        let projecaoGlobal = 0;
+        const projecaoPorOp = {};
+
+        Object.keys(frotaCards).forEach(id => {
+            const f = frotaCards[id];
+            
+            // 1. Calcular as horas informadas desta máquina
+            let horasInformadas = 0;
+            const producaoOpMaquina = {};
+            
+            horasArr.forEach(h => {
+                if (f.sh && f.sh[h] !== '#f1f5f9') {
+                    horasInformadas++;
+                }
+                const op = f.op && f.op[h];
+                const v = f.ph && f.ph[h] ? f.ph[h] : 0;
+                
+                if (op && op !== "PARADO" && op !== "OPERAÇÃO PARADA" && v > 0) {
+                    if (!producaoOpMaquina[op]) producaoOpMaquina[op] = 0;
+                    producaoOpMaquina[op] += v;
+                }
+            });
+            
+            if (horasInformadas === 0) horasInformadas = 1;
+            
+            // 2. Distribuir a produção de cada lançamento (operação) nas horas restantes da máquina
+            Object.keys(producaoOpMaquina).forEach(op => {
+                const realOp = producaoOpMaquina[op];
+                // Projeção = Real + (Ritmo Médio da Máquina) * Horas Restantes
+                // Matematicamente: (realOp / horasInformadas) * 24
+                const projOpMaquina = (realOp / horasInformadas) * 24;
+                
+                if (!projecaoPorOp[op]) projecaoPorOp[op] = 0;
+                projecaoPorOp[op] += projOpMaquina;
+                projecaoGlobal += projOpMaquina;
+            });
+        });
+
+        // Atualização dos Mini Cartões
+        document.getElementById('v_total').innerHTML = `
+            <h4>TOTAL GERAL</h4>
+            <div style="display:flex; justify-content:center; align-items:baseline;">
+                <div class="valor">${tGeral.toFixed(1)}</div>
+                ${metaAcumuladaGeral > 0 ? `<div class="meta-info" style="font-size:14px; color:#ef4444; font-weight:800; margin-left:6px;${!metaVisivel ? ' display:none;' : ''}" title="Meta Acumulada Global">/ 🎯 ${metaAcumuladaGeral.toFixed(1)}</div>` : ''}
+            </div>
+            <div class="sub-valor" style="color:var(--usa-laranja); font-size:10px; margin-top:5px; font-weight:800; letter-spacing:0.5px;">
+                PROJ. 24H: ${projecaoGlobal.toFixed(1)}
+            </div>`;
+
+        const vProjDiv = document.getElementById('v_proj');
+        let htmlProj = "<h4>PROJEÇÃO 24H POR OP.</h4>";
+        Object.keys(qtdPorOperacao).sort().forEach(op => {
+            const real = qtdPorOperacao[op];
+            const projOp = projecaoPorOp[op] || 0;
+            htmlProj += `
+                <div style="font-size:9.5px; font-weight:700; margin-bottom:5px; border-bottom:1px solid #f1f5f9; padding-bottom:4px; line-height:1.3;">
+                    <span style="color:var(--usa-verde-escuro); font-weight:800;">${op}</span><br>
+                    <span style="color:var(--text-muted);">Real: ${real.toFixed(1)}</span> | 
+                    <span style="color:var(--usa-laranja);">Proj: ${projOp.toFixed(1)}</span>
+                </div>`;
+        });
+        vProjDiv.innerHTML = htmlProj;
+
+        document.getElementById('v_media_h').innerText = (tGeral / totalHorasMaquinaProdutivas).toFixed(1);
+        document.getElementById('v_media_eq').innerText = (tGeral / (Object.keys(frotaCards).length || 1)).toFixed(1);
+
+        // Renderização da Tabela de Resumos por Operação
+        const tbody = document.getElementById('corpo_tab');
+        tbody.innerHTML = "";
+        
+        const chavesTabelaOrdenadas = Object.keys(tabelaRows).sort();
+        if (chavesTabelaOrdenadas.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhum dado encontrado para o processo e data selecionados.</td></tr>`;
+        } else {
+            chavesTabelaOrdenadas.forEach(chave => {
+                const r = tabelaRows[chave];
+                if (r.total <= 0) return;
+                const rend = (r.total / (r.hP || 1)).toFixed(1);
+                
+                // Aplica formatação especial para Treminhões/Pentaminhões
+                const classeEspecial = (r.frota.includes("TRETAMINHÃO") || r.frota.includes("PENTAMINHÃO")) ? 'linha-especial' : '';
+                tbody.innerHTML += `
+                    <tr class="${classeEspecial}">
+                        <td><b>${r.frota}</b></td>
+                        <td>${r.faz}</td>
+                        <td style="color:#d97706; font-weight:700; text-transform:uppercase;">${r.oper}</td>
+                        <td style="font-weight:600;">${r.total.toFixed(1)}</td>
+                        <td style="color:var(--usa-verde-medio); font-weight:800;">${rend}</td>
+                    </tr>`;
+            });
+        }
+
+        // Renderização da Legenda Dinâmica baseada nos motivos
+        const legendaDiv = document.getElementById('legenda_dinamica');
+        legendaDiv.innerHTML = "";
+        Array.from(motivosNoDia.keys()).sort().forEach(nome => {
+            legendaDiv.innerHTML += `
+                <div class="legenda-item">
+                    <div class="legenda-cor" style="background:${motivosNoDia.get(nome)}"></div>
+                    <span>${nome}</span>
+                </div>`;
+        });
+
+        // Renderização dos Cards Individuais de Frota
+        const grid = document.getElementById('grid_eq');
+        grid.innerHTML = "";
+        
+        Object.keys(frotaCards).sort().forEach(id => {
+            const f = frotaCards[id];
+            const card = document.createElement('div');
+            card.className = 'card-chart';
+            
+            // Montagem do componente timeline (24h)
+            let tl = '<div class="timeline">';
+            horasArr.forEach(h => {
+                tl += `<div class="fatia" style="background:${f.sh[h]}" title="Hora: ${h}:00 - Status: ${f.sh[h]}"></div>`;
+            });
+            tl += '</div><div class="labels-hora">';
+            horasArr.forEach(h => {
+                tl += `<span>${h}</span>`;
+            });
+            tl += '</div>';
+
+            // Montagem das observações se houverem
+            let htmlObs = "";
+            if (f.obs.length > 0) {
+                htmlObs = `<div class="box-obs"><b>📝 EVENTOS E OBSERVAÇÕES:</b>`;
+                f.obs.forEach(o => {
+                    htmlObs += `<div class="obs-item"><b>${o.hora}h:</b> ${o.texto}</div>`;
+                });
+                htmlObs += `</div>`;
+            }
+
+            // Calcula Meta Acumulada para o card
+            let metaAcumulada = 0;
+            horasArr.forEach(h => {
+                if (f.sh && f.sh[h] !== '#f1f5f9' && f.op && f.op[h]) {
+                    let m = buscarMetaPorOperacao(id, f.op[h]);
+                    if (m) metaAcumulada += m;
+                }
+            });
+
+            // Formata as operações com suas respectivas metas
+            let opsStr = Array.from(f.listaOps).map(op => {
+                let m = buscarMetaPorOperacao(id, op);
+                return m ? `${op} (🎯 ${m.toFixed(2).replace('.', ',')})` : op;
+            }).join(" + ");
+            if (!opsStr) opsStr = "PARADO";
+
+            // O container do header do card possui um min-height de 52px para alinhar todos os gráficos horizontalmente
+            // Monta o botão de toggle de meta (só mostra se houver meta cadastrada)
+            const btnMetaHtml = metaAcumulada > 0 ? `
+                <button class="btn-meta-toggle ${metaVisivel ? 'active' : ''}" id="btn-meta-${id.replace(/[\s\/]+/g, '_')}" onclick="toggleMeta(this, '${id}')" title="Mostrar/ocultar linha de meta no gráfico">
+                    <span class="meta-dot"></span>🎯 META
+                </button>` : '';
+
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #f1f5f9; padding-bottom:10px; align-items:flex-start; min-height: 52px; box-sizing: border-box;">
+                    <div>
+                        <b style="font-size:18px; color:var(--usa-verde-escuro); font-family:var(--font-display);">${id}</b>
+                        <div style="margin-top:4px; font-size:11px; color:#d97706; font-weight:800;">📍 ${f.ultimaFaz}</div>
+                        ${btnMetaHtml}
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="display:flex; align-items:baseline; justify-content:flex-end;">
+                            <b style="font-size:20px; color:var(--usa-verde-medio); font-family:var(--font-display);">${f.total.toFixed(1)}</b>
+                            ${metaAcumulada > 0 ? `<span class="meta-info" style="font-size:13px; color:#ef4444; font-weight:800; margin-left:6px;${!metaVisivel ? ' display:none;' : ''}" title="Meta Acumulada no Período Trabalhado">/ 🎯 ${metaAcumulada.toFixed(1)}</span>` : ''}
+                        </div>
+                        <div style="margin-top:2px;"><small style="color:var(--usa-laranja); font-weight:800; font-size:9px; text-transform:uppercase; background:rgba(255,152,0,0.08); padding:2px 8px; border-radius:10px;">${opsStr}</small></div>
+                    </div>
+                </div>
+                <div style="height:120px; position:relative; margin-bottom:8px;"><canvas id="chart-${id}"></canvas></div>
+                ${tl}
+                ${htmlObs}`;
+            grid.appendChild(card);
+            
+            // Renderiza o gráfico line correspondente, passando as operações e status por hora para busca de meta dinâmica
+            renderizarGrafico(id, f.ph, f.listaOps, f.sh, f.op);
+        });
+    }
+
+    function buscarMetaPorOperacao(equipamento, operacao) {
+        if (!operacao) return null;
+        try {
+            const configCadastro = JSON.parse(localStorage.getItem(CADASTRO_KEY)) || {};
+            const metas = configCadastro.metas || [];
+            const eqUpper = equipamento.toUpperCase().trim();
+
+            // Busca a meta pela combinação exata de equipamento + operação
+            const meta = metas.find(m =>
+                m.equipamento.toUpperCase().trim() === eqUpper && m.operacao === operacao
+            );
+            return meta ? meta.valor : null;
+        } catch (e) {
+            console.error('Erro ao buscar meta:', e);
+            return null;
+        }
+    }
+
+    function renderizarGrafico(id, dadosHora, listaOps, statusHora, operacaoHora) {
+        const canvasEl = document.getElementById(`chart-${id}`);
+        if (!canvasEl) return;
+        const ctx = canvasEl.getContext('2d');
+        
+        // Destroi instâncias antigas para evitar memory leaks
+        if (chartInstances[id]) {
+            chartInstances[id].destroy();
+        }
+        
+        const valores = horasArr.map(h => dadosHora[h]);
+        
+        // Constrói um array com a meta correspondente à operação que aconteceu naquela hora
+        const metaValoresPorHora = horasArr.map(h => {
+            if (statusHora && statusHora[h] !== '#f1f5f9' && operacaoHora && operacaoHora[h]) {
+                return buscarMetaPorOperacao(id, operacaoHora[h]);
+            }
+            return null;
+        });
+
+        const metasValidas = metaValoresPorHora.filter(v => v !== null && v > 0);
+        const hasMeta = metasValidas.length > 0;
+        const maxMeta = hasMeta ? Math.max(...metasValidas) : 0;
+        const maxValor = Math.max(...valores, maxMeta);
+
+        // Gradiente suave abaixo da linha de rendimento
+        const grad = ctx.createLinearGradient(0, 0, 0, 110);
+        grad.addColorStop(0, 'rgba(45, 122, 76, 0.35)'); 
+        grad.addColorStop(1, 'rgba(45, 122, 76, 0)');
+
+        // Dataset principal: produção por hora
+        const datasets = [{ 
+            label: 'Produção',
+            data: valores, 
+            borderColor: '#2D7A4C', 
+            borderWidth: 2, 
+            backgroundColor: grad, 
+            fill: true, 
+            tension: 0.4, 
+            pointRadius: 2, 
+            pointHoverRadius: 5,
+            clip: false,
+            order: 1
+        }];
+
+        // Dataset de meta: linha horizontal tracejada acompanhando a operação
+        if (hasMeta) {
+            datasets.push({
+                label: 'Meta',
+                data: metaValoresPorHora,
+                borderColor: '#ef4444',
+                borderWidth: 2,
+                borderDash: [8, 4],
+                backgroundColor: 'transparent',
+                fill: false,
+                tension: 0,
+                pointRadius: 0,
+                pointHoverRadius: 0,
+                clip: false,
+                order: 0,
+                hidden: !metaVisivel  // Respeita o estado global de visibilidade
+            });
+        }
+        
+        chartInstances[id] = new Chart(ctx, {
+            type: 'line',
+            data: { 
+                labels: horasArr, 
+                datasets: datasets 
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                animation: false,
+                layout: { padding: { top: 25 } },
+                plugins: { 
+                    legend: { display: false }, 
+                    datalabels: { 
+                        display: function(context) {
+                            // Só mostra labels de dados no dataset de produção (index 0)
+                            return context.datasetIndex === 0;
+                        },
+                        align: 'top', 
+                        anchor: 'end', 
+                        offset: 2,
+                        formatter: (v) => v > 0 ? v.toFixed(2).replace('.', ',') : '', 
+                        font: { size: 10, weight: '900', family: 'Outfit' }, 
+                        color: '#004A2F' 
+                    } 
+                },
+                scales: { 
+                    y: { 
+                        display: false, 
+                        beginAtZero: true, 
+                        suggestMax: maxValor > 0 ? maxValor * 1.2 : 5 
+                    }, 
+                    x: { display: false } 
+                }
+            }
+        });
+    }
+
+    // Função para alternar visibilidade da meta no gráfico individual
+    function toggleMeta(btnEl, chartId) {
+        const chart = chartInstances[chartId];
+        if (!chart) return;
+
+        // Procura o dataset de Meta
+        const metaIndex = chart.data.datasets.findIndex(ds => ds.label === 'Meta');
+        if (metaIndex === -1) return;
+
+        // Alterna visibilidade
+        const isHidden = chart.data.datasets[metaIndex].hidden;
+        chart.data.datasets[metaIndex].hidden = !isHidden;
+        chart.update();
+
+        // Alterna estilo do botão
+        btnEl.classList.toggle('active', !isHidden ? false : true);
+
+        // Oculta/mostra os textos de meta no card correspondente
+        const card = btnEl.closest('.card-chart');
+        if (card) {
+            card.querySelectorAll('.meta-info').forEach(el => {
+                el.style.display = isHidden ? '' : 'none';
+            });
+        }
+    }
+
+    // Função global para ativar/desativar meta em TODOS os gráficos de uma vez
+    function toggleMetaGlobal() {
+        metaVisivel = !metaVisivel;
+
+        // Atualiza todos os gráficos
+        Object.keys(chartInstances).forEach(chartId => {
+            const chart = chartInstances[chartId];
+            const metaIndex = chart.data.datasets.findIndex(ds => ds.label === 'Meta');
+            if (metaIndex !== -1) {
+                chart.data.datasets[metaIndex].hidden = !metaVisivel;
+                chart.update();
+            }
+        });
+
+        // Atualiza todos os botões de toggle
+        document.querySelectorAll('.btn-meta-toggle').forEach(btn => {
+            btn.classList.toggle('active', metaVisivel);
+        });
+
+        // Atualiza botão global
+        const btnGlobal = document.getElementById('btn-meta-global');
+        if (btnGlobal) {
+            btnGlobal.classList.toggle('active', metaVisivel);
+        }
+
+        // Oculta/mostra TODOS os textos de meta nos cards e no total geral
+        document.querySelectorAll('.meta-info').forEach(el => {
+            el.style.display = metaVisivel ? '' : 'none';
+        });
+    }
+    
+    async function copiarRelatorio() {
+        const btn = document.getElementById('btnZap');
+        const originalText = btn.innerHTML;
+        btn.innerText = "⌛ GERANDO...";
+        
+        // Remove posicionamento fixo temporariamente ou ajusta área de captura para evitar distorções
+        try {
+            const canvas = await html2canvas(document.getElementById("area-print"), { 
+                backgroundColor: "#f4f6f8", 
+                scale: 2,
+                useCORS: true,
+                logging: false
+            });
+            
+            canvas.toBlob(async (blob) => {
+                if (!blob) {
+                    throw new Error("Falha ao gerar blob do canvas");
+                }
+                try {
+                    const data = [new ClipboardItem({ [blob.type]: blob })];
+                    await navigator.clipboard.write(data);
+                    btn.innerHTML = "✅ COPIADO!";
+                    setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+                } catch (clipErr) {
+                    console.error("Erro na Clipboard API:", clipErr);
+                    btn.innerHTML = "❌ ERRO AO COPIAR";
+                    setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+                }
+            }, "image/png");
+        } catch (err) {
+            console.error("Erro ao gerar captura de tela com html2canvas:", err);
+            btn.innerHTML = "❌ ERRO";
+            setTimeout(() => { btn.innerHTML = originalText; }, 1500);
+        }
+    }
+</script>
+</body>
+</html>
